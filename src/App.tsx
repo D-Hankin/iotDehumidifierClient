@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react'
 import './App.css'
+import Header from './header/Header'
+import StatsGraph from './statsGraph/StatsGraph'
 
 interface Stat {
   id: string,
   temperature: string,
-  humidity: string
+  humidity: string,
+  timestamp: string
 }
 
 function App() {
@@ -14,17 +17,18 @@ function App() {
   useEffect(() => {
     fetchStats();
 
-    const interval = setInterval(fetchStats, 20000);
+    const interval = setInterval(fetchStats, 10000);
     
     return () => clearInterval(interval);
 
   }, [])
 
   const fetchStats = () => {
-    fetch("http://localhost:8080/client-to-db-and-back")
+    fetch("http://localhost:8080/get-data")
     .then(res => res.json())
     .then(data => {
       setStatsList(data);
+      console.log(data);
     })
     .catch(error => {
       console.error("Error fetching data:", error);
@@ -33,12 +37,13 @@ function App() {
 
   return (
     <>
-      <h1>Sticky Walls</h1>
-      <ul>
+      <Header header={"Sticky Walls"} />
+      {/* <ul>
         {statsList.map((stat) => (
-          <li key={stat.id}>{stat.temperature}, {stat.humidity}</li>
+          <li key={stat.id}>Temp : {stat.temperature}, Humidity: {stat.humidity}%, Timestamp: {stat.timestamp}</li>
         ))}
-      </ul>
+      </ul> */}
+      <StatsGraph statsList={statsList} />
     </>
   )
 }
