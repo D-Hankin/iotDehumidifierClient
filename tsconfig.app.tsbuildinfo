@@ -1,1 +1,1 @@
-{"root":["./src/app.tsx","./src/main.tsx","./src/vite-env.d.ts","./src/header/header.tsx","./src/statsgraph/statsgraph.tsx"],"version":"5.6.2"}
+{"root":["./src/app.tsx","./src/main.tsx","./src/vite-env.d.ts","./src/dehumidifierstatus/dehumidifierstatus.tsx","./src/header/header.tsx","./src/statsgraph/statsgraph.tsx"],"version":"5.6.2"}
