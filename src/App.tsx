@@ -38,23 +38,34 @@ function App() {
   }, [])
 
   useEffect(() => {
-    const merged = statsList.map(stat => {
-      const statHour = new Date(stat.timestamp).toISOString().substring(0, 13); 
-      const matchingPrice = elPrice.find(price => 
-        price.time_start.startsWith(statHour) 
-      );
-
-      return {
-        ...stat,
-        price: matchingPrice ? (matchingPrice.SEK_per_kWh * 100).toFixed(0) : null, 
-      };
-    });
-
+    const today = new Date().toISOString().substring(0, 10);
+  
+    const merged = statsList
+      .filter(stat => new Date(stat.timestamp).toISOString().substring(0, 10) === today)
+      .map(stat => {
+        const statHour = new Date(stat.timestamp).toISOString().substring(0, 13); 
+        
+        const matchingPrice = elPrice.find(price => 
+          new Date(price.time_start).toISOString().substring(0, 13) === statHour
+        );
+  
+        return {
+          ...stat,
+          price: matchingPrice ? (matchingPrice.SEK_per_kWh * 100).toFixed(0) : null,
+        };
+      });
+  
     setMergedData(merged);
+    console.log(mergedData);
   }, [statsList, elPrice]);
+  
 
   const fetchElPrice = () =>  {
-    fetch("https://www.elprisetjustnu.se/api/v1/prices/2024/09-30_SE4.json")
+    const today = new Date().toISOString();
+    console.log(today);
+    const elPriceUrl = "https://www.elprisetjustnu.se/api/v1/prices/" + today.slice(0, 4) + "/" + today.slice(5, 7) + "-" + today.slice(8,10) + "_SE4.json";
+    console.log(elPriceUrl);
+    fetch(elPriceUrl)
       .then(res => res.json())
       .then(data => {
         console.log(data);
@@ -64,7 +75,7 @@ function App() {
   }
 
   const fetchStats = () => {
-    fetch("https://localhost:8080/get-data")
+    fetch("http://localhost:8080/get-data")
     .then(res => res.json())
     .then(data => {
       setStatsList(data);

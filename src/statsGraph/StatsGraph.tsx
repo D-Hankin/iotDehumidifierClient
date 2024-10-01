@@ -17,8 +17,8 @@ function StatsGraph(props: Props) {
 
   return (
     <>
-        <h2>Current Statistics</h2>
-        <LineChart width={1000} height={600} margin={{ top: 20, right: 20, left: 20, bottom: 60 }} data={props.statsList}>
+        <h2>Todays Statistics</h2>
+        <LineChart width={1000} height={600} margin={{ top: 60, right: 20, left: 20, bottom: 60 }} data={props.statsList}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis 
               dataKey="timestamp"
