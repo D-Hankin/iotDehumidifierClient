@@ -5,6 +5,7 @@ import StatsGraph from './statsGraph/StatsGraph'
 import DehumidifierStatus from './dehumidifierStatus/DehumidifierStatus'
 import Login from './login/Login'
 import Logout from './logout/Logout'
+import CreateAccount from './createAccount/CreateAccount'
 
 interface Stat {
   id: string,
@@ -138,7 +139,11 @@ function App() {
         <Logout logoutReturn={logoutReturn}/> : null}
       <Header header={"Sticky Walls"} />
       {loginResult.token === "" ?
-        <Login loginReturn={loginReturn}/> : 
+        <>
+          <Login loginReturn={loginReturn}/>
+          <CreateAccount /> 
+        </>
+        :
         <>
           <DehumidifierStatus currentDehumidifierStatus={currentDehumidifierStatus} />
           <StatsGraph statsList={mergedData} latestReading={latestReading} /> 

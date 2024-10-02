@@ -1,45 +1,33 @@
-import { useState } from "react"
-import "./login.css"
+import { useState } from 'react'
 
-
-interface Props {
-    loginReturn : (tokenOrError: Token) => void
-}
-
-interface Token {
-    token:string
-}
-
-function Login(props: Props) {
+function createAccount() {
 
     const [email, setEmail] = useState<string>("");
     const [password, setPassword] = useState<string>("");
+    const [successMessage, setSuccessMessage] = useState<string>("");
 
-    const fetchLogin = (e: { preventDefault: () => void; }) => {
+    const submitCreateAccount = (e: { preventDefault: () => void; }) => {
         e.preventDefault()
-
-        fetch("http://localhost:8080/login", {
+        fetch("http://localhost:8080/create-account", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                "username":email,
-                "password":password
+                username: email,
+                password: password
             })
-        })
-        .then(res => {
+        }).then(res => {
             if (!res.ok) {
                 return res.json().then(err => {
-                    alert("Invalid email or password!")
-                    throw new Error(err.message || "Login failed");
+                    alert("Somethinfg went wrong, try again.")
+                    throw new Error(err.message || "Account creation failed");
                 });
             }
             return res.json();
         })
         .then(data => {
-            props.loginReturn(data)
-            localStorage.setItem("token", `Bearer ${data.token}`);
+            setSuccessMessage(data.username + ", account created. Now you can log in!");
             setEmail("");
             setPassword("");
         })
@@ -48,16 +36,18 @@ function Login(props: Props) {
         });
     }
 
+    
   return (
-    <div className="formDiv">
-        <form onSubmit={fetchLogin}>
+    <>
+        <form onSubmit={submitCreateAccount}>
             <input placeholder="@Email" className="emailInput" value={email} onChange={(e) => setEmail(e.target.value)}/>
             <input placeholder="Password" className="passwordInput" type='password' value={password} onChange={(e) => setPassword(e.target.value)}/>
-            <button type="submit">Log in</button>
+            <button type='submit'>Create Account</button>
         </form>
-        
-    </div>
+        <h3>{successMessage}</h3>
+    </>
+
   )
 }
 
-export default Login
+export default createAccount
