@@ -27,7 +27,7 @@ function StatsGraph(props: Props) {
                 const timeLabel = date.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' }); 
                 return timeLabel;
               }}
-              label={{ value: new Date(props.statsList[0].timestamp).toLocaleDateString('sv-SE'), position: "insideBottomRight", offset: -10 }}
+              // label={{ value: new Date(props.statsList[0].timestamp).toLocaleDateString('sv-SE'), position: "insideBottomRight", offset: -10 }}
             />
             <YAxis>
               <Label value="Temp °C / Humidity % / Spot Price Öre" angle={-90} position="insideLeft" />

@@ -3,6 +3,7 @@ import './App.css'
 import Header from './header/Header'
 import StatsGraph from './statsGraph/StatsGraph'
 import DehumidifierStatus from './dehumidifierStatus/DehumidifierStatus'
+import Login from './login/Login'
 
 interface Stat {
   id: string,
@@ -21,17 +22,27 @@ interface MergedData extends Stat {
   price: string | null
 }
 
+interface TokenObject {
+  token:string
+}
+
 function App() {
 
   const [statsList, setStatsList] = useState<Stat[]>([])
   const [currentDehumidifierStatus, setCurrentDehumidifierStatus] = useState<boolean>(false)
   const [elPrice, setElPrice] = useState<Price[]>([]);
   const [mergedData, setMergedData] = useState<MergedData[]>([]);
+  const [loginResult, setLoginResult] = useState<TokenObject>({token: ""});
 
   useEffect(() => {
     fetchStats();
     fetchElPrice();
-    const interval = setInterval(() => {fetchStats(), fetchElPrice()}, 120000);
+    const interval = setInterval(() => {fetchStats()}, 120000);
+    const storedToken = localStorage.getItem("token");
+
+    if (storedToken) {
+        setLoginResult({ token: storedToken });
+    }
     
     return () => clearInterval(interval);
 
@@ -75,23 +86,41 @@ function App() {
   }
 
   const fetchStats = () => {
-    fetch("http://localhost:8080/get-data")
-    .then(res => res.json())
-    .then(data => {
-      setStatsList(data);
-      setCurrentDehumidifierStatus(data[data.length - 1].dehumidifierStatus);
-      console.log(data);
-    })
-    .catch(error => {
-      console.error("Error fetching data:", error);
-    });
+    const token = localStorage.getItem("token")
+    console.log(token)
+    if (token !== null) {
+      fetch("http://localhost:8080/get-data", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": token
+        }
+      })
+      .then(res => res.json())
+      .then(data => {
+        setStatsList(data);
+        setCurrentDehumidifierStatus(data[data.length - 1].dehumidifierStatus);
+        console.log(data);
+      })
+      .catch(error => {
+        console.error("Error fetching data:", error);
+      });
+    }
+  
   }
-
+  const loginReturn = (tokenOrError: TokenObject) => {
+    setLoginResult(tokenOrError)
+  }
+  
   return (
     <>
       <Header header={"Sticky Walls"} />
-      <DehumidifierStatus currentDehumidifierStatus={currentDehumidifierStatus} />
-      <StatsGraph statsList={mergedData} />
+      {loginResult.token === "" ?
+        <Login loginReturn={loginReturn}/> : 
+        <>
+        <DehumidifierStatus currentDehumidifierStatus={currentDehumidifierStatus} />
+        <StatsGraph statsList={mergedData} /> 
+        </>}
     </>
   )
 }
