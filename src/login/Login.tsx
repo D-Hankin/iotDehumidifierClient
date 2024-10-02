@@ -17,8 +17,6 @@ function Login(props: Props) {
     const fetchLogin = (e: { preventDefault: () => void; }) => {
         e.preventDefault()
 
-        console.log("suername, ", email)
-        console.log("pasword, ", password)
         fetch("http://localhost:8080/login", {
             method: "POST",
             headers: {
@@ -32,13 +30,13 @@ function Login(props: Props) {
         .then(res => {
             if (!res.ok) {
                 return res.json().then(err => {
+                    alert("Invalid email or password!")
                     throw new Error(err.message || "Login failed");
                 });
             }
             return res.json();
         })
         .then(data => {
-            console.log("Login successful", data);
             props.loginReturn(data)
             localStorage.setItem("token", `Bearer ${data.token}`);
         })

@@ -4,6 +4,7 @@ import Header from './header/Header'
 import StatsGraph from './statsGraph/StatsGraph'
 import DehumidifierStatus from './dehumidifierStatus/DehumidifierStatus'
 import Login from './login/Login'
+import Logout from './logout/Logout'
 
 interface Stat {
   id: string,
@@ -33,20 +34,39 @@ function App() {
   const [elPrice, setElPrice] = useState<Price[]>([]);
   const [mergedData, setMergedData] = useState<MergedData[]>([]);
   const [loginResult, setLoginResult] = useState<TokenObject>({token: ""});
+  const [latestReading, setLatestReading] = useState<MergedData>({
+    id: "",
+    temperature: "",
+    humidity: "",
+    timestamp: "",
+    dehumidifierStatus: false,
+    price: ""
+  })
 
   useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    
+    if (storedToken) {
+      setLoginResult({ token: storedToken });
+    }
     fetchStats();
     fetchElPrice();
     const interval = setInterval(() => {fetchStats()}, 120000);
-    const storedToken = localStorage.getItem("token");
-
-    if (storedToken) {
-        setLoginResult({ token: storedToken });
-    }
     
     return () => clearInterval(interval);
 
   }, [])
+
+  useEffect(() => {
+    fetchStats();
+    fetchElPrice();
+  }, [loginResult])
+
+  useEffect(() => {
+    if (mergedData.length > 0) {
+      setLatestReading(mergedData[mergedData.length - 1]);
+    }
+  }, [mergedData])
 
   useEffect(() => {
     const today = new Date().toISOString().substring(0, 10);
@@ -67,19 +87,15 @@ function App() {
       });
   
     setMergedData(merged);
-    console.log(mergedData);
   }, [statsList, elPrice]);
   
 
   const fetchElPrice = () =>  {
     const today = new Date().toISOString();
-    console.log(today);
     const elPriceUrl = "https://www.elprisetjustnu.se/api/v1/prices/" + today.slice(0, 4) + "/" + today.slice(5, 7) + "-" + today.slice(8,10) + "_SE4.json";
-    console.log(elPriceUrl);
     fetch(elPriceUrl)
       .then(res => res.json())
       .then(data => {
-        console.log(data);
         const prices: Price[] = data;
         setElPrice(prices);
       })
@@ -87,7 +103,6 @@ function App() {
 
   const fetchStats = () => {
     const token = localStorage.getItem("token")
-    console.log(token)
     if (token !== null) {
       fetch("http://localhost:8080/get-data", {
         method: "GET",
@@ -100,7 +115,6 @@ function App() {
       .then(data => {
         setStatsList(data);
         setCurrentDehumidifierStatus(data[data.length - 1].dehumidifierStatus);
-        console.log(data);
       })
       .catch(error => {
         console.error("Error fetching data:", error);
@@ -111,15 +125,23 @@ function App() {
   const loginReturn = (tokenOrError: TokenObject) => {
     setLoginResult(tokenOrError)
   }
+
+  const logoutReturn = () => {
+    setLoginResult({token : ""})
+    setElPrice([])
+    setStatsList([])
+  }
   
   return (
     <>
+      {loginResult.token !== "" ? 
+        <Logout logoutReturn={logoutReturn}/> : null}
       <Header header={"Sticky Walls"} />
       {loginResult.token === "" ?
         <Login loginReturn={loginReturn}/> : 
         <>
-        <DehumidifierStatus currentDehumidifierStatus={currentDehumidifierStatus} />
-        <StatsGraph statsList={mergedData} /> 
+          <DehumidifierStatus currentDehumidifierStatus={currentDehumidifierStatus} />
+          <StatsGraph statsList={mergedData} latestReading={latestReading} /> 
         </>}
     </>
   )
