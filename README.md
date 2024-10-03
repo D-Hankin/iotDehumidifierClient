@@ -38,6 +38,35 @@ How It Works
 3.  **Visualization:** Humidity data, temperature are displayed on a graph, allowing users to monitor daily statistics.
 4.  **Electricity Prices:** Current electricity prices are displayed to help users manage the costs of running their dehumidifier.
 
+   
+### App Flow
+
+1.  **Arduino → Server:**
+
+    -   The Arduino collects environmental data (e.g., humidity levels) from connected sensors.
+    -   This data is transmitted to the server via HTTP requests, using the Arduino's Wi-Fi connection.
+      
+2.  **Server → MongoDB:**
+
+    -   Upon receiving the data, the server processes and stores it in a MongoDB database.
+    -   MongoDB ensures the data is stored in a structured format, enabling easy retrieval for future use.
+      
+3.  **Server → Notification Mail:**
+
+    -   If the Arduino reports a humidity level above 55%, the server sends a notification email to the logged-in user's email address.
+    -   The notification is triggered only once when the condition is met, to avoid repetitive emails.
+      
+4.  **MongoDB → Server:**
+
+    -   The server queries MongoDB to retrieve historical data or the latest statistics as needed.
+    -   This data is used for further processing or for serving the client application.
+      
+5.  **Server → Client:**
+
+    -   The client (built with React and TypeScript) sends requests to the server to retrieve updated information, such as daily statistics or current electricity prices.
+    -   The server responds with the requested data, which is then displayed in the client interface for the user.
+
+
 Installation and Setup
 ----------------------
 
