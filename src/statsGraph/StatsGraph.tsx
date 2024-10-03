@@ -1,7 +1,9 @@
 import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, Label } from 'recharts';
+import LatestReading from '../latestReading/LatestReading';
 
 interface Props {
-    statsList: Stat[]
+    statsList: Stat[],
+    latestReading: Stat
 }
 
 interface Stat {
@@ -18,6 +20,7 @@ function StatsGraph(props: Props) {
   return (
     <>
         <h2>Todays Statistics</h2>
+        <LatestReading latestReading={props.latestReading} />
         <LineChart width={1000} height={600} margin={{ top: 60, right: 20, left: 20, bottom: 60 }} data={props.statsList}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis 
@@ -27,7 +30,7 @@ function StatsGraph(props: Props) {
                 const timeLabel = date.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' }); 
                 return timeLabel;
               }}
-              label={{ value: new Date(props.statsList[0].timestamp).toLocaleDateString('sv-SE'), position: "insideBottomRight", offset: -10 }}
+              // label={{ value: new Date(props.statsList[0].timestamp).toLocaleDateString('sv-SE'), position: "insideBottomRight", offset: -10 }}
             />
             <YAxis>
               <Label value="Temp °C / Humidity % / Spot Price Öre" angle={-90} position="insideLeft" />
